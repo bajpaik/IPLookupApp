@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update sys_domain="global" table="sys_script">
+    <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access>package_private</access>
+        <action_delete>false</action_delete>
+        <action_insert>true</action_insert>
+        <action_query>false</action_query>
+        <action_update>true</action_update>
+        <active>true</active>
+        <add_message>false</add_message>
+        <advanced>true</advanced>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection>x_80404_iplookup_ipaddressinfo</collection>
+        <condition/>
+        <description>to invoke the IPInfo Outbound REST Message based on the IP Address value in a record. &#13;
+DEVELOPER TIP: Business Rules which invoke a web service must be async.</description>
+        <execute_function>false</execute_function>
+        <filter_condition/>
+        <is_rest>false</is_rest>
+        <message/>
+        <name>Populate IP Address City</name>
+        <order>100</order>
+        <priority>100</priority>
+        <rest_method/>
+        <rest_method_text/>
+        <rest_service/>
+        <rest_service_text/>
+        <rest_variables/>
+        <role_conditions/>
+        <script><![CDATA[(function executeRule(current, previous /*null when async*/) {
+
+	try { 
+ var r = new sn_ws.RESTMessageV2('x_80404_iplookup.IPInfo', 'OneInALL');
+ r.setStringParameterNoEscape('specific_field', 'geo');
+ r.setStringParameterNoEscape('fieldData',current.ip_address);
+
+//override authentication profile 
+//authentication type ='basic'/ 'oauth2'
+//r.setAuthentication(authentication type, profile name);
+
+//set a MID server name if one wants to run the message on MID
+//r.setMIDServer('MY_MID_SERVER');
+
+//if the message is configured to communicate through ECC queue, either
+//by setting a MID server or calling executeAsync, one needs to set skip_sensor
+//to true. Otherwise, one may get an intermittent error that the response body is null
+//r.setEccParameter('skip_sensor', true);
+
+ var response = r.execute();
+ var responseBody = response.getBody();
+ var httpStatus = response.getStatusCode();
+		
+		var responseObj = JSON.parse(responseBody);
+		current.city = responseObj.city;
+		current.region = responseObj.region;
+		gs.info('City= '+ current.city + 'Region = '+ current.region);
+		current.update();
+}
+	catch(err){
+		gs.info('Undefined error : '+err);
+//The code stub below assumes the error messages have been internationalized which we have not done. Modify the catch() logic to report the errors caught from the try:
+	// var message = ex.getMessage();
+	//catch(ex) {
+ //var message = ex.getMessage();
+}
+
+})(current, previous);]]></script>
+        <sys_class_name>sys_script</sys_class_name>
+        <sys_created_by>workhstayh</sys_created_by>
+        <sys_created_on>2018-07-11 23:05:46</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>267de0b8db5f9300329ffe1ebf9619cf</sys_id>
+        <sys_mod_count>3</sys_mod_count>
+        <sys_name>Populate IP Address City</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="IPLookup" source="x_80404_iplookup">1f3ab3a8dbdb9300329ffe1ebf96191a</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="IPLookup">1f3ab3a8dbdb9300329ffe1ebf96191a</sys_scope>
+        <sys_update_name>sys_script_267de0b8db5f9300329ffe1ebf9619cf</sys_update_name>
+        <sys_updated_by>workhstayh</sys_updated_by>
+        <sys_updated_on>2018-07-11 23:31:45</sys_updated_on>
+        <template/>
+        <when>async</when>
+    </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=267de0b8db5f9300329ffe1ebf9619cf"/>
+</record_update>
